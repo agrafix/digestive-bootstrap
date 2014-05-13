@@ -3,7 +3,6 @@ version:             0.1.0.0
 synopsis:            Speed up form designing using digestive forms and bootstrap
 description:         Generate bootstrap forms out of digestive views
 license:             MIT
-license-file:        LICENSE
 author:              Alexander Thiemann <mail@agrafix.net>
 maintainer:          mail@agrafix.net
 copyright:           (c) 2014 Alexander Thiemann
