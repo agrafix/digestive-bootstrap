@@ -17,9 +17,13 @@ import Text.Digestive.Blaze.Html5
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
+
+type NumberUnit = T.Text
 
 data FormElementCfg
    = InputText
+   | InputNumber (Maybe NumberUnit)
    | InputPassword
    | InputTextArea (Maybe Int) (Maybe Int)
    | InputHidden
@@ -27,6 +31,7 @@ data FormElementCfg
    | InputRadio Bool
    | InputCheckbox
    | InputFile
+   | InputDate
 
 data FormElement
    = FormElement
@@ -61,11 +66,20 @@ renderElement formView formElement =
              alertBox BootAlertDanger $ H.ul $ mapM_ (H.li . toHtml) errorMsgs
        case fe_label formElement of
          Just lbl ->
-             H.label ! for (toValue $ fe_name formElement) $ (toHtml lbl)
+             H.label ! for (toValue $ fe_name formElement) $ toHtml lbl
          Nothing ->
              mempty
-       buildFun (fe_name formElement) formView ! class_ "form-control" ! placeholder (toValue $ fromMaybe "" $ fe_label formElement)
+       let ct = buildFun (fe_name formElement) formView ! class_ "form-control" ! placeholder (toValue $ fromMaybe "" $ fe_label formElement)
+       if hasAddon
+       then H.div ! class_ "input-group" $ (ct >>= \_ -> groupAddonAfter)
+       else ct
     where
+      (hasAddon, groupAddonAfter) =
+          case fe_cfg formElement of
+            InputNumber (Just numberUnit) ->
+                (True, H.span ! class_ "input-group-addon" $ toHtml numberUnit)
+            _ ->
+                (False, mempty)
       buildFun =
           case fe_cfg formElement of
             InputText -> inputText
@@ -76,3 +90,16 @@ renderElement formView formElement =
             InputRadio rBr -> inputRadio rBr
             InputCheckbox -> inputCheckbox
             InputFile -> inputFile
+            InputNumber _ -> inputX "number"
+            InputDate -> inputX "date"
+
+inputX :: T.Text -> T.Text -> View v -> Html
+inputX x ref view =
+    input
+    ! type_ (toValue x)
+    ! A.id    (H.toValue ref')
+    ! name  (H.toValue ref')
+    ! value (H.toValue $ fieldInputText ref view)
+    !? (x == "number", A.step "any")
+  where
+    ref' = absoluteRef ref view
