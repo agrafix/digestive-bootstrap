@@ -1,4 +1,13 @@
 digestive-bootstrap
-=============
+=====
 
-Simplify building HTML-Forms from [digestive-functors](http://hackage.haskell.org/package/digestive-functors) Form definitions using blaze and bootstrap.
+[![Build Status](https://travis-ci.org/agrafix/digestive-bootstrap.svg)](https://travis-ci.org/agrafix/digestive-bootstrap)
+
+# Intro
+
+Hackage: http://hackage.haskell.org/package/digestive-bootstrap
+
+# Install
+
+* Using cabal: `cabal install digestive-bootstrap`
+* From Source: `git clone https://github.com/agrafix/digestive-bootstrap.git && cd digestive-bootstrap && cabal install`
