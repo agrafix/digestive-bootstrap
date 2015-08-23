@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Digestive.Bootstrap
     ( FormMeta (..), FormElement (..), FormElementCfg (..)
@@ -7,7 +8,10 @@ module Text.Digestive.Bootstrap
 where
 
 import Data.Maybe
+#if MIN_VERSION_base(4,8,0)
+#else
 import Data.Monoid
+#endif
 import Network.HTTP.Types.Method
 import Text.Blaze.Bootstrap
 import Text.Blaze.Html5
@@ -21,6 +25,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 type NumberUnit = T.Text
 
+-- | Form element type
 data FormElementCfg
    = InputText
    | InputNumber (Maybe NumberUnit)
@@ -33,6 +38,7 @@ data FormElementCfg
    | InputFile
    | InputDate
 
+-- | Configuration for a form element
 data FormElement
    = FormElement
    { fe_name :: T.Text
@@ -40,6 +46,7 @@ data FormElement
    , fe_cfg :: FormElementCfg
    }
 
+-- | Meta information for a HTML form
 data FormMeta
    = FormMeta
    { fm_method :: StdMethod
@@ -48,6 +55,8 @@ data FormMeta
    , fm_submitText :: T.Text
    }
 
+-- | Render a form defined by 'FormMeta' information and
+-- the digestive functor 'View'.
 renderForm :: FormMeta -> View Html -> Html
 renderForm formMeta formView =
     H.form ! role "form" ! method formMethod ! action formAction $
