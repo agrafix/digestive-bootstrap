@@ -1,8 +1,7 @@
 flags: {}
 packages:
 - '.'
-- location: ../blaze-bootstrap
-  extra-dep: true
 extra-deps:
+- blaze-bootstrap-0.1.0.1
 - digestive-functors-blaze-0.6.0.6
 resolver: lts-3.0
