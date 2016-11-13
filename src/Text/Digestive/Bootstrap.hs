@@ -82,7 +82,7 @@ renderComponent :: View Html -> FormComponent -> Html
 renderComponent formView comp =
     case comp of
       FCSection fs -> renderSection formView fs
-      FCHtmlSection body -> body
+      FCHtmlSection bdy -> bdy
 
 renderSection :: View Html -> FormSection -> Html
 renderSection formView formSection =
