@@ -9,10 +9,7 @@ module Text.Digestive.Bootstrap
 where
 
 import Data.Maybe
-#if MIN_VERSION_base(4,8,0)
-#else
 import Data.Monoid
-#endif
 import Network.HTTP.Types.Method
 import Text.Blaze.Bootstrap
 import Text.Blaze.Html5
@@ -97,24 +94,36 @@ renderSection formView formSection =
 
 renderElement :: View Html -> FormElement -> Html
 renderElement formView formElement =
-    formGroup $
+    wrapper $
     do case errors (fe_name formElement) formView of
          [] -> mempty
          errorMsgs ->
-             alertBox BootAlertDanger $ H.ul $ mapM_ (H.li . toHtml) errorMsgs
-       case fe_label formElement of
-         Just lbl ->
-             H.label ! for (toValue $ fe_name formElement) $ toHtml lbl
-         Nothing ->
-             mempty
-       let ct =
-               buildFun (fe_name formElement) formView
-               ! class_ "form-control"
-               ! placeholder (toValue . fromMaybe "" . fe_label $ formElement)
-       if hasAddon
-       then H.div ! class_ "input-group" $ (ct >>= \_ -> groupAddonAfter)
-       else ct
+             alertBox BootAlertDanger $ H.ul ! class_ "form-errors" $ mapM_ (H.li . toHtml) errorMsgs
+       case fe_cfg formElement of
+         InputCheckbox ->
+             H.label $
+             do (inputCheckbox (fe_name formElement) formView) <> " "
+                case fe_label formElement of
+                  Nothing -> mempty
+                  Just lbl -> H.toHtml lbl
+         _ ->
+             do case fe_label formElement of
+                  Just lbl ->
+                      H.label ! for (toValue $ fe_name formElement) $ toHtml lbl
+                  Nothing ->
+                      mempty
+                let ct =
+                        buildFun (fe_name formElement) formView
+                        ! class_ "form-control"
+                        ! placeholder (toValue . fromMaybe "" . fe_label $ formElement)
+                if hasAddon
+                then H.div ! class_ "input-group" $ (ct >>= \_ -> groupAddonAfter)
+                else ct
     where
+      wrapper x =
+          case fe_cfg formElement of
+            InputCheckbox -> H.div ! class_ "checkbox" $ x
+            _ -> formGroup x
       (hasAddon, groupAddonAfter) =
           case fe_cfg formElement of
             InputNumber (Just numberUnit) ->
