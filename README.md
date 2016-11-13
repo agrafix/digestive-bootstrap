@@ -31,4 +31,4 @@ Speed up form designing using digestive functors and bootstrap
 ### License
 
 Released under the MIT license.
-(c) 2014 - 2015 Alexander Thiemann
+(c) 2014 - 2016 Alexander Thiemann

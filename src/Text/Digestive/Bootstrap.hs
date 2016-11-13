@@ -2,7 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Digestive.Bootstrap
     ( FormMeta (..), FormElement (..), FormElementCfg (..)
-    , StdMethod (..)
+    , FormSection (..), FormComponent (..)
+    , StdMethod (..), NumberUnit
     , renderForm
     )
 where
@@ -41,18 +42,28 @@ data FormElementCfg
 -- | Configuration for a form element
 data FormElement
    = FormElement
-   { fe_name :: T.Text
-   , fe_label :: Maybe T.Text
-   , fe_cfg :: FormElementCfg
+   { fe_name :: !T.Text
+   , fe_label :: !(Maybe T.Text)
+   , fe_cfg :: !FormElementCfg
    }
+
+data FormSection
+    = FormSection
+    { fs_title :: !(Maybe T.Text)
+    , fs_help :: !(Maybe T.Text)
+    , fs_elements :: ![FormElement]
+    }
+
+data FormComponent
+    = FCSection !FormSection
 
 -- | Meta information for a HTML form
 data FormMeta
    = FormMeta
    { fm_method :: StdMethod
    , fm_target :: T.Text
-   , fm_elements :: [FormElement]
-   , fm_submitText :: T.Text
+   , fm_components :: [FormComponent]
+   , fm_submitValue :: Html
    }
 
 -- | Render a form defined by 'FormMeta' information and
@@ -60,11 +71,27 @@ data FormMeta
 renderForm :: FormMeta -> View Html -> Html
 renderForm formMeta formView =
     H.form ! role "form" ! method formMethod ! action formAction $
-     do mapM_ (renderElement formView) (fm_elements formMeta)
-        formSubmit (toHtml $ fm_submitText formMeta)
+     do mapM_ (renderComponent formView) (fm_components formMeta)
+        formSubmit (fm_submitValue formMeta)
     where
       formMethod = toValue (T.decodeUtf8 $ renderStdMethod (fm_method formMeta))
       formAction = toValue $ fm_target formMeta
+
+renderComponent :: View Html -> FormComponent -> Html
+renderComponent formView comp =
+    case comp of
+      FCSection fs -> renderSection formView fs
+
+renderSection :: View Html -> FormSection -> Html
+renderSection formView formSection =
+    H.div ! class_ "form-section" $
+    do case fs_title formSection of
+         Nothing -> mempty
+         Just x -> H.h3 ! class_ "form-section-title" $ toHtml x
+       case fs_help formSection of
+         Nothing -> mempty
+         Just x -> H.p ! class_ "form-section-help" $ toHtml x
+       mapM_ (renderElement formView) (fs_elements formSection)
 
 renderElement :: View Html -> FormElement -> Html
 renderElement formView formElement =
@@ -78,7 +105,10 @@ renderElement formView formElement =
              H.label ! for (toValue $ fe_name formElement) $ toHtml lbl
          Nothing ->
              mempty
-       let ct = buildFun (fe_name formElement) formView ! class_ "form-control" ! placeholder (toValue $ fromMaybe "" $ fe_label formElement)
+       let ct =
+               buildFun (fe_name formElement) formView
+               ! class_ "form-control"
+               ! placeholder (toValue . fromMaybe "" . fe_label $ formElement)
        if hasAddon
        then H.div ! class_ "input-group" $ (ct >>= \_ -> groupAddonAfter)
        else ct
