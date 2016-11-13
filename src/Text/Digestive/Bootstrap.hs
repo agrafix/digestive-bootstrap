@@ -56,6 +56,7 @@ data FormSection
 
 data FormComponent
     = FCSection !FormSection
+    | FCHtmlSection !H.Html
 
 -- | Meta information for a HTML form
 data FormMeta
@@ -81,6 +82,7 @@ renderComponent :: View Html -> FormComponent -> Html
 renderComponent formView comp =
     case comp of
       FCSection fs -> renderSection formView fs
+      FCHtmlSection body -> body
 
 renderSection :: View Html -> FormSection -> Html
 renderSection formView formSection =
