@@ -1,5 +1,5 @@
 name:                digestive-bootstrap
-version:             0.2.0.0
+version:             0.3.0.0
 synopsis:            Speed up form designing using digestive functors and bootstrap
 description:         Generate bootstrap forms out of digestive views
 license:             MIT
