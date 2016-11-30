@@ -41,6 +41,7 @@ data FormElement
    = FormElement
    { fe_name :: !T.Text
    , fe_label :: !(Maybe T.Text)
+   , fe_placeholder :: !(Maybe T.Text)
    , fe_cfg :: !FormElementCfg
    }
 
@@ -115,7 +116,7 @@ renderElement formView formElement =
                 let ct =
                         buildFun (fe_name formElement) formView
                         ! class_ "form-control"
-                        ! placeholder (toValue . fromMaybe "" . fe_label $ formElement)
+                        ! placeholder (toValue . fromMaybe "" . fe_placeholder $ formElement)
                 if hasAddon
                 then H.div ! class_ "input-group" $ (ct >>= \_ -> groupAddonAfter)
                 else ct
