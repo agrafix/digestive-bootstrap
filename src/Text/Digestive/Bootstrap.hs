@@ -13,7 +13,7 @@ import Data.Monoid
 import Network.HTTP.Types.Method
 import Text.Blaze.Bootstrap
 import Text.Blaze.Html5
-import Text.Blaze.Html5.Attributes
+import Text.Blaze.Html5.Attributes hiding (role)
 import Text.Digestive
 import Text.Digestive.Blaze.Html5
 import qualified Data.Text as T
